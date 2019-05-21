@@ -40,4 +40,6 @@ exec /usr/bin/rspamc -h $RSPAMD_HOST -P $RSPAMD_SECRET learn_ham\n' > /usr/lib/d
 
 VOLUME	[ "/var/vmail" ]
 
+EXPOSE 143/tcp 993/tcp 41901/tcp 41902/tcp 4190/tcp
+
 CMD	[ "/usr/sbin/dovecot", "-F" ]
