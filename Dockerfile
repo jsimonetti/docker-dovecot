@@ -1,45 +1,21 @@
 FROM jsimonetti/alpine-edge
 
-RUN	apk add --no-cache dovecot-lmtpd dovecot-pigeonhole-plugin rspamd-client
-
-RUN	echo "!include /etc/dovecot/conf.d/*.conf" > /etc/dovecot/dovecot.conf && \
-	addgroup -g 5000 vmail && adduser -u 5000 -G vmail -h /var/vmail -D -s /sbin/nologin vmail && \
-	echo $' \n\
-require ["vnd.dovecot.pipe", "copy", "imapsieve", "environment", "variables"];\n\
-\n\
-if environment :matches "imap.user" "*" {\n\
-  set "username" "${1}";\n\
-}\n\
-\n\
-pipe :copy "sa-learn-spam.sh" [ "${username}" ];' > /usr/lib/dovecot/sieve/report-spam.sieve && \
-	echo $' \n\
-require ["vnd.dovecot.pipe", "copy", "imapsieve", "environment", "variables"];\n\
-\n\
-if environment :matches "imap.mailbox" "*" {\n\
-  set "mailbox" "${1}";\n\
-}\n\
-\n\
-if string "${mailbox}" "Trash" {\n\
-  stop;\n\
-}\n\
-\n\
-if environment :matches "imap.user" "*" {\n\
-  set "username" "${1}";\n\
-}\n\
-\n\
-pipe :copy "sa-learn-ham.sh" [ "${username}" ];\n' > /usr/lib/dovecot/sieve/report-ham.sieve && \
-	echo $' \n\
-#!/bin/sh\n\
-exec /usr/bin/rspamc -h $RSPAMD_HOST -P $RSPAMD_SECRET learn_spam\n' > /usr/lib/dovecot/sieve/sa-learn-spam.sh && \
-	chmod +x /usr/lib/dovecot/sieve/sa-learn-spam.sh && \
-	echo $' \n\
-#!/bin/sh\n\
-exec /usr/bin/rspamc -h $RSPAMD_HOST -P $RSPAMD_SECRET learn_ham\n' > /usr/lib/dovecot/sieve/sa-learn-ham.sh && \
-	chmod +x /usr/lib/dovecot/sieve/sa-learn-ham.sh
+RUN	apk add --no-cache dovecot-lmtpd dovecot-pigeonhole-plugin curl bash
+COPY ./config /config.staged
+RUN	\
+	curl -o /config.staged/99-antispam_with_sieve.conf -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/99-antispam_with_sieve.conf && \
+	curl -o /config.staged/learn-ham.sieve -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/learn-ham.sieve && \
+	curl -o /config.staged/learn-spam.sieve -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/learn-spam.sieve && \
+	curl -o /config.staged/global-spam.sieve -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/global-spam.sieve && \
+	curl -o /config.staged/global-try-spam.sieve -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/global-try-spam.sieve && \
+	curl -o /config.staged/learn-spam.rspamd.script -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/learn-spam.rspamd.script && \
+	curl -o /config.staged/rspamd-controller.conf.sh -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/rspamd-controller.conf.sh
 
 
 VOLUME	[ "/var/vmail" ]
 
 EXPOSE 143/tcp 993/tcp 41901/tcp 41902/tcp 4190/tcp
 
-CMD	[ "/usr/sbin/dovecot", "-F" ]
+COPY ./entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]
+CMD	[ "dovecot", "-F" ]
