@@ -27,7 +27,7 @@ if [ "$1" = 'dovecot' ]; then
     cp /config.staged/*.conf /config
     cp /config.staged/*.sieve /usr/lib/dovecot/sieve
     cp /config.staged/rspamd-controller.conf.sh /etc/dovecot/rspamd-controller.conf.sh
-    sed -i -e 's/logger -p mail.err/echo error:/g' -e 's/logger -p mail.debug/echo debug:/g' /config.staged/learn-spam.rspamd.script
+    sed -i -e 's/logger -p mail.err/echo error:/g' -e 's/logger -p mail.debug/echo debug:/g' -e 's/exec //g' /config.staged/learn-spam.rspamd.script
     cp /config.staged/learn-spam.rspamd.script /usr/lib/dovecot/sieve-pipe/learn-spam.rspamd.script
     cp /config.staged/learn-spam.rspamd.script /usr/lib/dovecot/sieve-pipe/learn-ham.rspamd.script
     chmod +x /usr/lib/dovecot/sieve-pipe/*.script

@@ -1,6 +1,6 @@
 FROM jsimonetti/alpine-edge
 
-RUN	apk add --no-cache dovecot-lmtpd dovecot-pigeonhole-plugin curl bash
+RUN	apk add --no-cache dovecot-lmtpd dovecot-pigeonhole-plugin curl bash tini
 COPY ./config /config.staged
 RUN	\
 	curl -o /config.staged/99-antispam_with_sieve.conf -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/99-antispam_with_sieve.conf && \
@@ -17,5 +17,5 @@ VOLUME	[ "/var/vmail" ]
 EXPOSE 143/tcp 993/tcp 41901/tcp 41902/tcp 4190/tcp
 
 COPY ./entrypoint.sh /
-ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT [ "tini", "--", "/entrypoint.sh" ]
 CMD	[ "dovecot", "-F" ]
