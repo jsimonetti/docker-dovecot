@@ -1,6 +1,6 @@
 FROM jsimonetti/alpine-edge
 
-RUN	apk add --no-cache dovecot-lmtpd dovecot-pigeonhole-plugin curl
+RUN	apk add --no-cache dovecot-lmtpd dovecot-pigeonhole-plugin curl bash
 COPY ./config /config.staged
 RUN	\
 	curl -o /config.staged/99-antispam_with_sieve.conf -L https://raw.githubusercontent.com/darix/dovecot-sieve-antispam-rspamd/master/99-antispam_with_sieve.conf && \
