@@ -7,11 +7,11 @@ PUID="${PUID:-5000}"
 PGID="${PGID:-5000}"
 
 if [ "$1" = 'dovecot' ]; then
-    if [ $(getent group vmail) ]; then
-        delgroup vmail
-    fi
     if [ $(getent passwd vmail) ]; then
         deluser vmail
+    fi
+    if [ $(getent group vmail) ]; then
+        delgroup vmail
     fi
     addgroup -g $PGID vmail && adduser -u $PUID -G vmail -h /var/vmail -D -s /sbin/nologin vmail
     mkdir -p /var/vmail/conf.d /var/vmail/auth.d
