@@ -10,8 +10,8 @@ if [ "$1" = 'dovecot' ]; then
     set +e
     deluser vmail
     delgroup vmail
-    addgroup -g $PGID vmail && adduser -u $PUID -G vmail -h /var/vmail -D -s /sbin/nologin vmail
     set -e
+    addgroup -g $PGID vmail && adduser -u $PUID -G vmail -h /var/vmail -D -s /sbin/nologin vmail
     mkdir -p /var/vmail/conf.d /var/vmail/auth.d
     chown -R vmail:vmail /var/vmail/conf.d
     chown -R dovecot:dovecot /var/vmail/auth.d/
