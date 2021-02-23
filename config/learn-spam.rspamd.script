@@ -28,7 +28,7 @@ fi
 # a file including the password.
 # If it contains a password directly, store it in ${password} instead.
 password=
-if [ "${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '.' -a "${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '/' ]; then
+if [[ "${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '.'] && ["${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '/' ]]; then
 	logger -p mail.debug "Plaintext password given (should use a password file instead)"
 
 	password=${RSPAMD_CONTROLLER_PASSWORD}
