@@ -20,22 +20,17 @@ RSPAMD_CONTROLLER_SOCKET=
 RSPAMD_CONTROLLER_HOST=
 RSPAMD_CLASSIFIER=
 
-if [ -r "/etc/dovecot/rspamd-controller.conf.sh" ]; then
-	source "/etc/dovecot/rspamd-controller.conf.sh"
-fi
+source /etc/dovecot/rspamd-controller.conf.sh
 
 # RSPAMD_CONTROLLER_PASSWORD is supposed to be a filename, pointing to
 # a file including the password.
 # If it contains a password directly, store it in ${password} instead.
 password=
-if [[ "${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '.'] && ["${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '/' ]]; then
+if [ "${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '.' -a "${RSPAMD_CONTROLLER_PASSWORD:0:1}" != '/' ]; then
 	logger -p mail.debug "Plaintext password given (should use a password file instead)"
 
 	password=${RSPAMD_CONTROLLER_PASSWORD}
 	RSPAMD_CONTROLLER_PASSWORD=
-elif [ ! -r "${RSPAMD_CONTROLLER_PASSWORD}" ]; then
-	logger -p mail.err "Missing password file for rspamc"
-	exit 1
 fi
 
 if [ -z "${RSPAMD_CONTROLLER_HOST}" ] ; then
